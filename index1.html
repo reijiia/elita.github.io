@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Клан - Многостраничный в 1 файле</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&display=swap');
+  @import url("https://api.fontshare.com/v2/css?f[]=archivo@100,200,300,400,500,600,700,800,900&f[]=clash-display@200,300,400,500,600,700&display=swap");
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  a {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  a:hover {
+    color: #fff;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    color: #eee;
+  }
+  header p {
+    margin-top: 0.5rem;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #999;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #1e1e1e;
+    border-bottom: 1px solid #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  nav a {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 3px solid transparent;
+    user-select: none;
+  }
+
+  nav a.active {
+    border-color: #ff6b6b;
+    color: #fff;
+  }
+
+  main {
+    max-width: 1440px;
+    margin: 2.5rem auto 4rem;
+    padding: 0 10rem;
+    min-height: 60vh;
+  }
+
+  section {
+    display: none;
+  }
+  section.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+
+  section h2 {
+    font-weight: 600;
+    font-size: 1.8rem;
+    color: #eee;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.3rem;
+    margin-bottom: 1.2rem;
+  }
+  section p, section li {
+    color: #ccc;
+  }
+  ul {
+    margin-left: 1.5rem;
+  }
+  .indent {
+    text-indent: 1.5em;
+  }
+
+  /* Клан стиль */
+  .clan-container {
+    margin-bottom: 2rem;
+  }
+  .clan-name {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  /* Смена цвета названий кланов */
+  .red-elita .clan-name {
+    color: #dd0808;
+  }
+  .blue-elita .clan-name {
+    color: #4c8aff;
+  }
+  .green-elita .clan-name {
+    color: #4cff7d;
+  }
+  .yellow-elita .clan-name {
+    color: #ffec4c;
+  }
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .member-card {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #eee;
+    text-align: center;
+    box-shadow: 0 0 5px #000;
+    transition: background-color 0.3s ease;
+  }
+  .member-card:hover {
+    background-color: #3b3b3b;
+  }
+  .member-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 0.7rem;
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 64px;
+    color: #fff;
+    user-select: none;
+    background-color: #555;
+    object-fit: cover;
+  }
+  .red-elita .member-avatar {
+    background-color: #ff4c4c;
+    color: #330000;
+  }
+  .blue-elita .member-avatar {
+    background-color: #4c8aff;
+    color: #00264d;
+  }
+  .green-elita .member-avatar {
+    background-color: #4cff7d;
+    color: #003314;
+  }
+  .yellow-elita .member-avatar {
+    background-color: #ffec4c;
+    color: #4d4400;
+  }
+  .member-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #fff;
+    margin-bottom: 0.2rem;
+  }
+  .member-role {
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #bbb;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    background-color: #1e1e1e;
+    color: #777;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    font-size: 0.9rem;
+    border-top: 1px solid #333;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header h1 {
+      font-size: 2rem;
+    }
+    nav a {
+      padding: 1rem 1rem;
+      font-size: 0.85rem;
+    }
+    main {
+      margin: 2rem 0.8rem 3rem;
+      padding: 0 1rem;
+    }
+    section h2 {
+      font-size: 1.5rem;
+    }
+    .members-grid {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+  }
+
+  /* -------------- Стили слайдера -------------- */
+  :root {
+    --slide-width: min(20vw, 700px);
+    --slide-aspect: 3/4;
+    --slide-transition-duration: 800ms;
+    --slide-transition-easing: ease;
+    --font-archivo: "Archivo", sans-serif;
+    --font-clash-display: "Clash Display", sans-serif;
+  }
+
+  .slider {
+    width: calc(3 * var(--slide-width));
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+  }
+
+  /* Кнопки без фона - только стрелки */
+  .slider--btn {
+    --size: 40px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 250ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    z-index: 999;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    width: var(--size);
+    height: var(--size);
+  }
+  .slider--btn:hover {
+    opacity: 1;
+  }
+  /* Стрелки как текст "<" и ">" вместо svg */
+  .slider--btn__prev::before {
+    content: "<";
+  }
+  .slider--btn__next::before {
+    content: ">";
+  }
+
+  .slides__wrapper {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .slides,
+  .slides--infos {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+  }
+  .slides > * , .slides--infos > * {
+    grid-area: 1 / 1;
+  }
+  .slide {
+    --slide-tx: 0px;
+    --slide-ty: 0vh;
+    --slide-rotY: 0deg;
+    --slide-scale: 1;
+    width: var(--slide-width);
+    height: auto;
+    aspect-ratio: var(--slide-aspect);
+    user-select: none;
+    perspective: 800px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform:
+      perspective(1000px)
+      translate3d(var(--slide-tx), var(--slide-ty), 0)
+      rotateY(var(--slide-rotY))
+      scale(var(--slide-scale));
+    transition: transform var(--slide-transition-duration) var(--slide-transition-easing);
+  }
+  .slide[data-current] {
+    --slide-scale: 1.2;
+    pointer-events: auto;
+    z-index: 20;
+  }
+  .slide[data-next] {
+    --slide-tx: calc(1 * var(--slide-width) * 1.07);
+    --slide-rotY: -45deg;
+    z-index: 10;
+  }
+  .slide[data-previous] {
+    --slide-tx: calc(-1 * var(--slide-width) * 1.07);
+    --slide-rotY: 45deg;
+    z-index: 10;
+  }
+  .slide:not([data-current]) {
+    pointer-events: none;
+  }
+  .slide__inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    left: 0;
+    top: 0;
+    transform-style: preserve-3d;
+  }
+  .slide--image__wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .slide--image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    object-fit: cover;
+    transform: translate(-50%, -50%) scale(1.25);
+    transition: filter var(--slide-transition-duration) var(--slide-transition-easing);
+  }
+  .slide[data-current] .slide--image {
+    filter: brightness(0.8);
+  }
+  .slide:not([data-current]) .slide--image {
+    filter: brightness(0.5);
+  }
+  .slide__bg {
+    position: fixed;
+    inset: -20%;
+    background-image: var(--bg);
+    background-size: cover;
+    background-position: center center;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity var(--slide-transition-duration) ease,
+      transform var(--slide-transition-duration) ease;
+  }
+  .slide__bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+  }
+  .slide__bg:not([data-current]) {
+    opacity: 0;
+  }
+  .slide__bg[data-previous] {
+    transform: translateX(-10%);
+  }
+  .slide__bg[data-next] {
+    transform: translateX(10%);
+  }
+  .slide-info {
+    --padding: 0;
+    position: relative;
+    width: var(--slide-width);
+    height: 100%;
+    aspect-ratio: var(--slide-aspect);
+    user-select: none;
+    perspective: 800px;
+    z-index: 100;
+  }
+  /* Подвинем текст выше */
+  .slide-info[data-current] .slide-info--text span {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition-delay: 250ms;
+  }
+  .slide-info:not([data-current]) .slide-info--text span {
+    opacity: 0;
+    transform: translate3d(0, 100%, 0);
+    transition-delay: 0ms;
+  }
+  .slide-info__inner {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Текст сверху */
+  }
+  .slide-info--text__wrapper {
+    --z-offset: 40px;
+    position: absolute;
+    height: fit-content;
+    left: -15%;
+    top: 15%; /* Изменено с bottom */
+    transform: translateZ(var(--z-offset));
+    z-index: 2;
+    pointer-events: none;
+  }
+  .slide-info--text {
+    font-family: var(--font-clash-display);
+    color: #fff;
+    overflow: hidden;
+  }
+  .slide-info--text span {
+    display: block;
+    white-space: nowrap;
+    transition: var(--slide-transition-duration) var(--slide-transition-easing);
+    transition-property: opacity, transform;
+  }
+  .slide-info--text[data-title],
+  .slide-info--text[data-subtitle] {
+    font-size: min(3cqw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: 0.2cqw;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .slide-info--text[data-subtitle] {
+    margin-left: 2cqw;
+    font-size: min(2.2cqw, 1.8rem);
+    font-weight: 600;
+  }
+  .slide-info--text[data-description] {
+    margin-left: 1cqw;
+    font-size: min(1.5cqw, 0.95rem);
+    font-family: var(--font-archivo);
+    font-weight: 300;
+  }
+  .loader {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: #000;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+  }
+  .loader__text {
+    font-family: var(--font-clash-display);
+    font-size: clamp(2rem, 2vw, 5rem);
+    font-weight: 800;
+    color: #fff;
+  }
+  .support {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    padding: 10px;
+    display: flex;
+    z-index: 1001;
+  }
+  .support a {
+    margin: 0 10px;
+    color: #fff;
+    font-size: 1.8rem;
+    backface-visibility: hidden;
+    transition: all 150ms ease;
+  }
+  .support a:hover {
+    transform: scale(1.1);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Клан Эlita</h1>
+  <p>Единство и сила в простоте</p>
+</header>
+<nav>
+  <a href="#about" class="active" data-page="about">О клане</a>
+  <a href="#perks" data-page="perks">Плюшки от клана</a>
+  <a href="#rules" data-page="rules">Правила</a>
+  <a href="#members" data-page="members">Состав клана</a>
+  <a href="#join" data-page="join">Как вступить</a>
+  <a href="#gallery" data-page="gallery">Наши постройки</a>
+  <a href="#quotes" data-page="quotes">Цитаты</a>
+  <a href="https://wiki.elita.yzz.me" target="_blank" rel="external">Вики</a>
+</nav>
+<main>
+  <section id="about" class="active">
+    <h2>О клане</h2>
+    <p>Клан Эlita – сообщество тех, кто уважает силу, сотрудничество и честность. Мы сражаемся вместе и вместе растем, поддерживая друг друга на каждом шаге.</p>
+    <p class="indent">Наш клан был создан 16 декабря 2022 года, однако эта дата не является началом нашей истории. История нашего клана берет свое начало с другого сервера, где люди в одиночку делали умопомрочительные проекты, а мы - являемся объединением всех этих лучших одиночек и теперь достигаем любые цели в кротчайшие сроки и выполняем проекты любой сложности. Наш клан это нечто большее, мы - семья, вместе мы пережили переход с сервера, развал предыдущего клана, игровой кризис. Несмотря на это мы не прекращали общаться, поддерживали друг друга в любых ситуациях, вместе смотрим фильмы по вечерам, а так же играем не только в майнкрафт, но и в другие игры. Наш клан уникален тем, что состоит из 7 кланов, а вместе мы - альянс кланов Эlita TURBO!</p>
+    <p>E-Эпические</p>
+    <p>L-Лучшие</p>
+    <p>I-Изящные</p>
+    <p>T-Талантливые</p>
+    <p>A-Амбициозные</p>
+    <p>И просто сынки маминой подруги :)</p>
+  </section>
+
+  <section id="perks">
+    <h2>Плюшки от клана</h2>
+    <ul>
+      <li>Бесплатный, быстрый, клановый VPN для PC и телефонов (писать reijiia и baldej_aleksandr для выдачи доступа)</li>
+      <li>Клановый DS 3 уровня</li>
+      <li>Самое большое адекватных сообщество людей на сервере</li>
+      <li>Все самые мощные фермы и трейдхолы</li>
+      <li>Возможность получить бесплатное жилье</li>
+      <li>Помощь с ресурсами при постройке своего проекта</li>
+      <li>Вики (сайт), где удобно собраны: гайды, инфоблоки, и важная информация</li>
+      <li>Доступ в приват на ферме обсидиана SV</li>
+      <li>Статусность на сервере</li>
+      <li>Возможность просмотра фильмов в теплом кругу и дальнейшего его оценивания: ⁠»🎥-фильмы</li>
+      <li>Возможность участия в клановых мероприятиях с крутыми призами</li>
+      <li>Возможность участия в клановых конкурсах с творческим проявлением себя</li>
+      <li>Возможность попасть на стримы от reijiia</li>
+      <li>Получение MVP 3 по достижению заслуг</li>
+      <li>Розыгрыши приятных призов в кругу клана</li>
+    </ul>
+  </section>
+
+  <section id="rules">
+    <h2>Правила клана</h2>
+    Два моих основных принципа, которых я придерживаюсь, держа клан:
+    <ul>
+      <li> Никаких правил - полная анархия и свобода слова</li> 
+      <li> Никаких удалений сообщений - все что сюда попало остается на всегда и будет храниться вечность</li>
+    </ul>
+    <p> Я стараюсь делать минимум правил и максимум свободы, однако из-за большого количества игроков в клане, а так же разного мировозрения, национальности и характеров его участников,  есть ряд моментов, которые стоит взять во внимание:</p>
+    <ul>
+      <li> Поднятие политики в клане будет пресекаться и наказываться. Здесь много людей как с Украины, так и с России, а по мимо этого и с других стран по всему миру. Многие хотят отдохнуть играя в игры, как раз от политики.</li>
+      <li> На счет удалений сообщений, бывают исключения по просьбам сокланов, если это касается их личности, а так же оффтоп, будет удаляться. Пишите в каналах, которые предназначены для этого.</li>
+      <li> Уважайте друг друга. Не ссорьтесь, не вымещайте агрессию друг на друга. Никто не хочет наблюдать за таким тут, это сильно утомляет. При спорах решайте конфликты адекватно.</li>
+      <li> Новички, слушайте старших по званию и имейте уважение к старичкам клана. Они через многое прошли и много сделали как в клане, так и на сервере</li>
+      <li> Возможны внесение изменений в пункты правил или дополнение новых</li>
+      <li> Поднятие политики в клане будет пресекаться и наказываться. Здесь много людей как с Украины, так и с России, а по мимо этого и с других стран по всему миру. Многие хотят отдохнуть играя в игры, как раз от политики.</li>
+    </ul>
+    <p> На счет удалений сообщений, бывают исключения по просьбам сокланов, если это касается их личности, а так же оффтоп, будет удаляться. Пишите в каналах, которые предназначены для этого.</p>
+    <ul>
+      <li>Уважайте друг друга. Не ссорьтесь, не вымещайте агрессию друг на друга. Никто не хочет наблюдать за таким тут, это сильно утомляет. При спорах решайте конфликты адекватно.</li>
+      <li>Новички, слушайте старших по званию и имейте уважение к старичкам клана. Они через многое прошли и много сделали как в клане, так и на сервере.</li>
+    </ul>  
+    <p>Возможны внесение изменений в пункты правил или дополнение новых.</p>
+    <ul>    
+      <li>Запрещено нарушать правила сервера. Не портите свою репутацию и репутацию клана, а так же не делайте проблем членам администрации, которые работают тут и тратят свое время для вашего блага совершенно бесплатно.</li>
+      <li>Запрещено телепортировать игроков с других кланов или без кланов в угол мира и допущение каких-либо хомов, мери-хомов, беков, установок кроватей и т.п чужим лицам на данной территории. Мы летели туда больше двух месяцев, что бы каждый из Вас тут мог спокойно строиться без приватов и не бояться, что с его территорией что-либо случится.</li>
+      <li>Запрещен гриф в углу мира и разрушение построек находящихся без привата или в нем. Цените время, которое ваши сокланы потратили на постройки и добычу ресурсов. Если видите незеритовые блоки в полу, не нужно их выкапывать и забирать, мы все равно найдем и вернем все на место. Относитесь к игрокам так, как хотели бы, что бы относились к вам.</li>
+      <li>Разрешено строительство своих проектов в углу мира, с заранее обговоренным местом и отступлением достаточного количества блоков от других построек для их дальнейшего развития. Напишите thik, если хотите построить проект в углу мира, что бы все согласовать.</li>
+    </ul>
+    <hr>
+      <p>Угол мира это клановая территория клана Элита для проверенных лиц, покидая клан вы должны быть готовы к тому что потеряете доступ сюда, даже если у вас есть проект там.
+        В клане поддерживается взаимо-помощь сокланов на безвозмездной основе. Старайтесь по возможности помогать друг другу бесплатно, и тогда вам тоже помогут бесплатно.,
+        Клан многое дает, но тоже нуждается в прокачке, это нужно в первую очередь Вам, что бы заключить все союзы. Для этого не нужно продавать клан токены, а распределять их между 7-ми кланами, которые в них нуждаются. Не стоит говорить, что вы от клана ничего не берете и не обязаны отдавать что-либо бесплатно. Клан многое дает, и сначала вы работаете на клан, а потом клан работает на Вас.,
+        В клане изредка проводятся сборы денег на клановые нужды (переносы построек/сеты территорий). Это исключительно добровольное пожертвование, если вы не скинете деньги, к Вам отношение никак не изменится.
+      </p>
+    </ul>
+  </section>
+
+  <section id="members">
+    <h2>Состав клана</h2>
+
+    <div class="clan-container red-elita">
+      <div class="clan-name">RED ELITA</div>
+      <div class="members-grid">
+        <div class="member-card">
+
+          <img class="member-avatar" src="https://s.iimg.su/s/23/XtZ5658cN1oyhql42HHOj5Q2yWQ3tMekK8HJvt6G.png" alt="R"/>
+          <div class="member-name">thik</div>
+          <div class="member-role">Owner</div>
+          <div class="members-role">MVP3</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+
+
+<div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div><div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div><div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div><div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div><div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div><div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">RedOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+    </div>
+
+    <div class="clan-container blue-elita">
+      <div class="clan-name">BLUE ELITA</div>
+      <div class="members-grid">
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">BlueOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+    </div>
+
+    <div class="clan-container green-elita">
+      <div class="clan-name">GREEN ELITA</div>
+      <div class="members-grid">
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">GreenOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+    </div>
+
+    <div class="clan-container yellow-elita">
+      <div class="clan-name">YELLOW ELITA</div>
+      <div class="members-grid">
+        <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+          <div class="member-card">
+          <div class="member-avatar">R</div>
+          <div class="member-name">YELLOWOwner</div>
+          <div class="member-role">Owner</div>
+          <div class="member-role">MVP 3</div>
+          <div class="member-role">Event</div>
+        </div>
+    </div>
+  </section>
+
+  <section id="join">
+    <h2>Как вступить</h2>
+    <p>Чтобы вступить в клан , отправьте заявку в Discord или свяжитесь с нами в Telegram. Мы всегда рады новым товарищам, которые поддерживают наши ценности и готовы активно участвовать в жизни клана.</p>
+    <ul>
+           <li>Telegram: <a href="https://telegram.org"></a></li>
+      <li>Discord: <a href="https://discord.gg/elita-ps" target="_blank" rel="noopener noreferrer">Подать заявку</a></li>
+    </ul>
+  </section>
+
+  <section id="gallery">
+    <h2>Наши постройки</h2>
+    <!-- Вставка слайдера -->
+    <div class="slider">
+      <button class="slider--btn slider--btn__prev" aria-label="Предыдущий слайд"></button>
+
+      <div class="slides__wrapper">
+        <div class="slides">
+          <div class="slide" data-current>
+            <div class="slide__inner">
+              <div class="slide--image__wrapper">
+                <img class="slide--image" src="https://s.iimg.su/s/26/y2qe356Jqj8jHb1SnkXUsVztxUZmvm8KuFcYh7fx.png" alt="Image 1" />
+              </div>
+            </div>
+          </div>
+          <div class="slide__bg" style="--bg: url(https://s.iimg.su/s/26/y2qe356Jqj8jHb1SnkXUsVztxUZmvm8KuFcYh7fx.png); --dir: 0" data-current></div>
+
+          <div class="slide" data-next>
+            <div class="slide__inner">
+              <div class="slide--image__wrapper">
+                <img class="slide--image" src="https://s.iimg.su/s/26/EX75OZh0Xodhs6XzGMLZVRRWICEiJ4pr5Rb0Yvv4.png" alt="Image 2" />
+              </div>
+            </div>
+          </div>
+          <div class="slide__bg" style="--bg: url(https://s.iimg.su/s/26/EX75OZh0Xodhs6XzGMLZVRRWICEiJ4pr5Rb0Yvv4.png); --dir: 1" data-next></div>
+
+          <div class="slide" data-previous>
+            <div class="slide__inner">
+              <div class="slide--image__wrapper">
+                <img class="slide--image" src="https://s.iimg.su/s/26/mpCcGVhx1NJemAixzFbBSL8Pcw3FK2yrDyd3VfZI.png" alt="Image 3" />
+              </div>
+            </div>
+          </div>
+          <div class="slide__bg" style="--bg: url(https://s.iimg.su/s/26/mpCcGVhx1NJemAixzFbBSL8Pcw3FK2yrDyd3VfZI.png); --dir: -1" data-previous></div>
+        </div>
+        <div class="slides--infos">
+          <div class="slide-info" data-current>
+            <div class="slide-info__inner">
+              <div class="slide-info--text__wrapper">
+                <div data-title class="slide-info--text">
+                  <span>Клановое</span>
+                </div>
+                <div data-subtitle class="slide-info--text">
+                  <span>Метро</span>
+                </div>
+                <div data-description class="slide-info--text">
+                  <span>Строоитель reijiia</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-info" data-next>
+            <div class="slide-info__inner">
+              <div class="slide-info--text__wrapper">
+                <div data-title class="slide-info--text">
+                  <span>Драконий</span>
+                </div>
+                <div data-subtitle class="slide-info--text">
+                  <span> остров</span>
+                </div>
+                <div data-description class="slide-info--text">
+                  <span>Строители: Rubellit и Panooga</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-info" data-previous>
+            <div class="slide-info__inner">
+              <div class="slide-info--text__wrapper">
+                <div data-title class="slide-info--text">
+                  <span>Город</span>
+                </div>
+                <div data-subtitle class="slide-info--text">
+                  <span>Жабоград</span>
+                </div>
+                <div data-description class="slide-info--text">
+                  <span>itsLander</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="slider--btn slider--btn__next" aria-label="Следующий слайд"></button>
+    </div>
+
+    <div class="loader">
+      <span class="loader__text">0%</span>
+    </div>
+
+    <div class="support">
+      <a href="https://telegram.org" target="_blank" aria-label="Twitter">T</a>
+      <a href="https://discord.gg/elita-ps" target="_blank" aria-label="GitHub">D</a>
+
+    </div>
+  </section>
+
+  <section id="quotes">
+    <h2>Цитаты клана</h2>
+    <ul>
+      <li>У тебя лицензия или нет
+        <ul>
+          <li>у меня это... у меня Фабрик</li>
+          <li>itzLANDER:  Это круто, но я не это спросила</li>
+        </ul>
+      </li>
+      <hr />
+      <li>Redy_Fox: Миллионы на балансе не важны, если у тебя в сундуках нет блоков...</li>
+      <hr />
+      <li>TashanKrishna_: Наконецто настал тот момент, когда новички кидают ножки!</li>
+      <hr />
+      <li>Xetup: Я завершаю карьеру бульдозера элиты. Я увидел всё, чего хотел</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  &copy; 2025 Клан Эlita — Все права защищены. Авторские права на Minecraft принадлежат Mojang Studios и никак не связаны с кланом Эlita.
+</footer>
+
+<script type="module">
+  import imagesLoaded from "https://esm.sh/imagesloaded";
+
+  const wrap = (n, max) => (n + max) % max;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  const genId = (() => {
+    let count = 0;
+    return () => (count++).toString();
+  })();
+
+  class Raf {
+    constructor() {
+      this.rafId = 0;
+      this.raf = this.raf.bind(this);
+      this.callbacks = [];
+      this.start();
+    }
+    start() { this.raf(); }
+    stop() { cancelAnimationFrame(this.rafId); }
+    raf() {
+      this.callbacks.forEach(({ callback }) => callback());
+      this.rafId = requestAnimationFrame(this.raf);
+    }
+    add(callback, id) {
+      this.callbacks.push({ callback, id: id || genId() });
+    }
+    remove(id) {
+      this.callbacks = this.callbacks.filter(c => c.id !== id);
+    }
+  }
+
+  class Vec2 {
+    constructor(x = 0, y = 0) { this.x = x; this.y = y; }
+    set(x, y) { this.x = x; this.y = y; }
+    lerp(v, t) {
+      this.x = lerp(this.x, v.x, t);
+      this.y = lerp(this.y, v.y, t);
+    }
+  }
+
+  const vec2 = (x = 0, y = 0) => new Vec2(x, y);
+
+  function tilt(node, options) {
+    let { trigger, target } = resolveOptions(node, options);
+    let lerpAmount = 0.06;
+    const rotDeg = { current: vec2(), target: vec2() };
+    const bgPos = { current: vec2(), target: vec2() };
+
+    const update = (newOptions) => {
+      destroy();
+      ({ trigger, target } = resolveOptions(node, newOptions));
+      init();
+    };
+
+    let rafId;
+
+    function ticker() {
+      rafId = rafId;
+      rotDeg.current.lerp(rotDeg.target, lerpAmount);
+      bgPos.current.lerp(bgPos.target, lerpAmount);
+      for (const el of target) {
+        el.style.setProperty("--rotX", rotDeg.current.y.toFixed(2) + "deg");
+        el.style.setProperty("--rotY", rotDeg.current.x.toFixed(2) + "deg");
+        el.style.setProperty("--bgPosX", bgPos.current.x.toFixed(2) + "%");
+        el.style.setProperty("--bgPosY", bgPos.current.y.toFixed(2) + "%");
+      }
+    }
+
+    const onMouseMove = ({ offsetX, offsetY }) => {
+      lerpAmount = 0.1;
+      for (const el of target) {
+        const ox = (offsetX - el.clientWidth * 0.5) / (Math.PI * 3);
+        const oy = -(offsetY - el.clientHeight * 0.5) / (Math.PI * 4);
+        rotDeg.target.set(ox, oy);
+        bgPos.target.set(-ox * 0.3, oy * 0.3);
+      }
+    };
+
+    const onMouseLeave = () => {
+      lerpAmount = 0.06;
+      rotDeg.target.set(0, 0);
+      bgPos.target.set(0, 0);
+    };
+
+    const addListeners = () => {
+      trigger.addEventListener("mousemove", onMouseMove);
+      trigger.addEventListener("mouseleave", onMouseLeave);
+    };
+    const removeListeners = () => {
+      trigger.removeEventListener("mousemove", onMouseMove);
+      trigger.removeEventListener("mouseleave", onMouseLeave);
+    };
+    const raf = new Raf();
+    const init = () => {
+      addListeners();
+      raf.add(ticker);
+    };
+    const destroy = () => {
+      removeListeners();
+      raf.remove(rafId);
+    };
+
+    init();
+
+    return { destroy, update };
+  }
+
+  function resolveOptions(node, options) {
+    return {
+      trigger: options?.trigger ?? node,
+      target: options?.target
+        ? Array.isArray(options.target)
+          ? options.target
+          : [options.target]
+        : [node]
+    };
+  }
+
+  const rafGlobal = new Raf();
+
+  function initSlider() {
+    const loader = document.querySelector(".loader");
+    const slides = [...document.querySelectorAll(".slide")];
+    const slidesInfo = [...document.querySelectorAll(".slide-info")];
+    const buttons = {
+      prev: document.querySelector(".slider--btn__prev"),
+      next: document.querySelector(".slider--btn__next")
+    };
+
+    loader.style.opacity = 0;
+    loader.style.pointerEvents = "none";
+
+    slides.forEach((slide, i) => {
+      const slideInner = slide.querySelector(".slide__inner");
+      const slideInfoInner = slidesInfo[i].querySelector(".slide-info__inner");
+      const slideImage = slide.querySelector(".slide--image");
+      tilt(slide, { target: [slideInner, slideInfoInner] });
+    });
+
+    buttons.prev.addEventListener("click", change(-1));
+    buttons.next.addEventListener("click", change(1));
+  }
+
+  function setupSlider() {
+    const loaderText = document.querySelector(".loader__text");
+    const images = [...document.querySelectorAll("img")];
+    const totalImages = images.length;
+    let loadedImages = 0;
+    let progress = { current: 0, target: 0 };
+
+    images.forEach(image => {
+      imagesLoaded(image, (instance) => {
+        if (instance.isComplete) {
+          loadedImages++;
+          progress.target = loadedImages / totalImages;
+        }
+      });
+    });
+
+    rafGlobal.add(() => {
+      progress.current = lerp(progress.current, progress.target, 0.06);
+      const progressPercent = Math.round(progress.current * 100);
+      loaderText.textContent = `${progressPercent}%`;
+      if (progressPercent === 100) {
+        initSlider();
+        rafGlobal.remove();
+      }
+    });
+  }
+
+  function change(direction) {
+    return () => {
+      let current = {
+        slide: document.querySelector(".slide[data-current]"),
+        slideInfo: document.querySelector(".slide-info[data-current]"),
+        slideBg: document.querySelector(".slide__bg[data-current]")
+      };
+      let previous = {
+        slide: document.querySelector(".slide[data-previous]"),
+        slideInfo: document.querySelector(".slide-info[data-previous]"),
+        slideBg: document.querySelector(".slide__bg[data-previous]")
+      };
+      let next = {
+        slide: document.querySelector(".slide[data-next]"),
+        slideInfo: document.querySelector(".slide-info[data-next]"),
+        slideBg: document.querySelector(".slide__bg[data-next]")
+      };
+
+      Object.values(current).forEach(el => el?.removeAttribute("data-current"));
+      Object.values(previous).forEach(el => el?.removeAttribute("data-previous"));
+      Object.values(next).forEach(el => el?.removeAttribute("data-next"));
+
+      if (direction === 1) {
+        let temp = current;
+        current = next;
+        next = previous;
+        previous = temp;
+      } else if (direction === -1) {
+        let temp = current;
+        current = previous;
+        previous = next;
+        next = temp;
+      }
+
+      Object.values(current).forEach(el => el?.setAttribute("data-current", ""));
+      Object.values(previous).forEach(el => el?.setAttribute("data-previous", ""));
+      Object.values(next).forEach(el => el?.setAttribute("data-next", ""));
+    };
+  }
+
+  // Инициализация меню навигации и переключение секций
+  const navLinks = document.querySelectorAll('nav a[data-page]');
+  const sections = document.querySelectorAll('main section');
+
+  function showPage(pageId) {
+    sections.forEach(s => {
+      s.classList.toggle('active', s.id === pageId);
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.dataset.page === pageId);
+    });
+    history.replaceState(null, '', '#' + pageId);
+  }
+
+  navLinks.forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const pageId = a.dataset.page;
+      showPage(pageId);
+    });
+  });
+
+  const currentHash = window.location.hash.substring(1);
+  if (currentHash && [...sections].some(s => s.id === currentHash)) {
+    showPage(currentHash);
+  } else {
+    showPage('about');
+  }
+
+  import("https://esm.sh/imagesloaded").then(module => {
+    window.imagesLoaded = module.default;
+    setupSlider();
+  });
+</script>
+</body>
+</html>
+
